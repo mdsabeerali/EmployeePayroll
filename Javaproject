@@ -1,0 +1,116 @@
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
+
+class Employee {
+    private String name;
+    private double salary;
+    private double deductions;
+
+    public Employee(String name, double salary, double deductions) {
+        this.name = name;
+        this.salary = salary;
+        this.deductions = deductions;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public double getSalary() {
+        return salary;
+    }
+
+    public double getDeductions() {
+        return deductions;
+    }
+}
+
+public class Main {
+    public static void main(String[] args) {
+        List<Employee> employees = new ArrayList<>();
+        loadEmployeesFromFile(employees);
+
+        Scanner scanner = new Scanner(System.in);
+        int choice;
+
+        do {
+            System.out.println("\nPayroll System Menu:");
+            System.out.println("1. Add Employee");
+            System.out.println("2. Calculate Salary");
+            System.out.println("3. Exit");
+            System.out.print("Enter your choice: ");
+            choice = scanner.nextInt();
+
+            switch (choice) {
+                case 1:
+                    addEmployee(employees, scanner);
+                    break;
+                case 2:
+                    calculateSalaries(employees);
+                    break;
+                case 3:
+                    saveEmployeesToFile(employees);
+                    System.out.println("Exiting the payroll system.");
+                    break;
+                default:
+                    System.out.println("Invalid choice. Please try again.");
+            }
+        } while (choice != 3);
+    }
+
+    private static void addEmployee(List<Employee> employees, Scanner scanner) {
+        System.out.print("Enter employee name: ");
+        String name = scanner.next();
+        System.out.print("Enter employee salary: ");
+        double salary = scanner.nextDouble();
+        System.out.print("Enter employee deductions: ");
+        double deductions = scanner.nextDouble();
+
+        Employee employee = new Employee(name, salary, deductions);
+        employees.add(employee);
+        System.out.println("Employee added successfully.");
+    }
+
+    private static void calculateSalaries(List<Employee> employees) {
+        System.out.println("Employee Salaries:");
+        for (Employee employee : employees) {
+            double netSalary = employee.getSalary() - employee.getDeductions();
+            System.out.println("Name: " + employee.getName() + ", Net Salary: " + netSalary);
+        }
+    }
+
+    private static void loadEmployeesFromFile(List<Employee> employees) {
+        try {
+            File file = new File("employees.txt");
+            if (file.exists()) {
+                Scanner scanner = new Scanner(file);
+                while (scanner.hasNextLine()) {
+                    String[] data = scanner.nextLine().split(",");
+                    if (data.length == 3) {
+                        String name = data[0];
+                        double salary = Double.parseDouble(data[1]);
+                        double deductions = Double.parseDouble(data[2]);
+                        employees.add(new Employee(name, salary, deductions));
+                    }
+                }
+                scanner.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void saveEmployeesToFile(List<Employee> employees) {
+        try {
+            FileWriter writer = new FileWriter("employees.txt");
+            for (Employee employee : employees) {
+                writer.write(employee.getName() + "," + employee.getSalary() + "," + employee.getDeductions() + "\n");
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
